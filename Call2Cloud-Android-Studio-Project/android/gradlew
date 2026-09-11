@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Call2Cloud Universal Gradle Wrapper Helper
+set -e
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$DIR"
+
+# 1. If gradle command is available on system, use it directly
+if command -v gradle >/dev/null 2>&1; then
+    exec gradle "$@"
+fi
+
+# 2. Check if wrapper jar exists; if not download it
+WRAPPER_JAR="$DIR/gradle/wrapper/gradle-wrapper.jar"
+if [ ! -f "$WRAPPER_JAR" ]; then
+    echo "[Call2Cloud] Gradle wrapper JAR not found. Downloading official Gradle 8.7 wrapper..."
+    mkdir -p "$DIR/gradle/wrapper"
+    curl -sSL "https://raw.githubusercontent.com/gradle/gradle/v8.7.0/gradle/wrapper/gradle-wrapper.jar" -o "$WRAPPER_JAR" || true
+fi
+
+# 3. If jar now exists, run with java
+if [ -f "$WRAPPER_JAR" ]; then
+    exec java -jar "$WRAPPER_JAR" "$@"
+fi
+
+echo "Error: Neither 'gradle' command nor 'java' with gradle-wrapper.jar is available."
+echo "Please install Gradle (https://gradle.org/install/) or OpenJDK 17."
+exit 1
