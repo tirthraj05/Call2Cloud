@@ -1,0 +1,25 @@
+workflows:
+  android-debug:
+    name: Call2Cloud Android APK Build
+    max_build_duration: 30
+    environment:
+      java: 17
+    scripts:
+      - name: Set permissions and build APK
+        script: |
+          cd android
+          chmod +x gradlew || true
+          if [ -f "./gradlew" ]; then
+            ./gradlew assembleDebug --stacktrace
+          else
+            gradle assembleDebug --stacktrace
+          fi
+    artifacts:
+      - android/app/build/outputs/apk/debug/*.apk
+    publishing:
+      email:
+        recipients:
+          - tirthraajgajera@gmail.com
+        notify:
+          success: true
+          failure: true
